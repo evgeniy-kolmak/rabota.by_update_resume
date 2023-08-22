@@ -1,0 +1,18 @@
+name: Update resume
+on:
+  schedule:
+    - cron: "0 */4 * * *"
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get repository code
+        uses: actions/checkout@v3
+      - name: Installing dependencies
+        run: npm ci
+      - name: Creating an environment
+        run: |
+          echo "LOGIN = ${{secrets.login}}" >> .env
+          echo "PASSWORD = ${{secrets.password}}" >> .env
+      - name: Starting a task
+        run: npm start
