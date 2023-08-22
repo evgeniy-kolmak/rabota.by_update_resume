@@ -1,7 +1,7 @@
 name: Update resume
 on:
   schedule:
-    - cron: "0 */4 * * *"
+    - cron: "0 */1 * * *"
 jobs:
   update:
     runs-on: ubuntu-latest
