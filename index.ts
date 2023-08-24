@@ -17,16 +17,14 @@ const UPDATE_RESUME_BUTTON_SELECTOR =
 
 const buttonText = "Поднять в поиске";
 
-let failedTimeout = 0;
+let tryUpdate = 0;
 
 const run = async () => {
   const browser = await chromium.launch();
   const context = await browser.newContext();
   const page: Page = await context.newPage();
 
-  await page.waitForTimeout(failedTimeout);
-
-  console.log(`Start task | Timeout: ${failedTimeout}`);
+  console.log(`Start task | Try: ${tryUpdate}`);
   await page.goto(targetUrl);
   await page.waitForTimeout(1000);
 
@@ -34,7 +32,6 @@ const run = async () => {
   await page.locator(LINK_EXPEND_AUTH_FORM_SELECTOR).click();
 
   console.info("Start filling form");
-  await page.isVisible(AUTH_FORM_SELECTOR);
   await page.locator(AUTH_FORM_USERNAME_SELECTOR).first().fill(login);
   await page.fill(AUTH_FORM_PASSWORD_SELECTOR, password);
   await page.locator(AUTH_FORM_BUTTON_SUBMIT_SELECTOR).click();
@@ -50,14 +47,17 @@ const run = async () => {
     if ((await updateButton.textContent()) === buttonText) {
       await updateButton.click();
       console.log("Successfully");
+    } else {
+      console.log("Not ready");
+      await browser.close();
     }
-    console.log("Not ready");
-    await browser.close();
-  } else {
+  } else if (tryUpdate <= 30) {
     console.log("Failed, needed captcha");
     await browser.close();
-    failedTimeout += 500;
+    tryUpdate++;
     run();
+  } else {
+    console.log("Update failed");
   }
 };
 
