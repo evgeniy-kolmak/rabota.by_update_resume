@@ -15,12 +15,18 @@ const AUTH_FORM_BUTTON_SUBMIT_SELECTOR = '[data-qa="account-login-submit"]';
 const UPDATE_RESUME_BUTTON_SELECTOR =
   '[data-qa="resume-update-button_actions"]';
 
-void (async () => {
+const buttonText = "Поднять в поиске";
+
+let failedTimeout = 0;
+
+const run = async () => {
   const browser = await chromium.launch();
   const context = await browser.newContext();
   const page: Page = await context.newPage();
 
-  console.log("Start task");
+  await page.waitForTimeout(failedTimeout);
+
+  console.log(`Start task | Timeout: ${failedTimeout}`);
   await page.goto(targetUrl);
   await page.waitForTimeout(1000);
 
@@ -34,9 +40,25 @@ void (async () => {
   await page.locator(AUTH_FORM_BUTTON_SUBMIT_SELECTOR).click();
   await page.waitForTimeout(2500);
 
-  console.info("Update resume");
-  await page.locator(UPDATE_RESUME_BUTTON_SELECTOR).first().click();
+  const isVisibleUpdateButton = await page.isVisible(
+    UPDATE_RESUME_BUTTON_SELECTOR
+  );
+  const updateButton = page.locator(UPDATE_RESUME_BUTTON_SELECTOR).first();
 
-  await browser.close();
-  console.info("Done");
-})();
+  if (isVisibleUpdateButton) {
+    console.log("Trying to update resume");
+    if ((await updateButton.textContent()) === buttonText) {
+      await updateButton.click();
+      console.log("Successfully");
+    }
+    console.log("Not ready");
+    await browser.close();
+  } else {
+    console.log("Failed, needed captcha");
+    await browser.close();
+    failedTimeout += 500;
+    run();
+  }
+};
+
+run();
