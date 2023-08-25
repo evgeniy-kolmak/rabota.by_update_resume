@@ -47,17 +47,19 @@ const run = async () => {
     if ((await updateButton.textContent()) === buttonText) {
       await updateButton.click();
       console.log("Successfully");
+      await browser.close();
     } else {
       console.log("Not ready");
       await browser.close();
     }
-  } else if (tryUpdate <= 30) {
+  } else if (tryUpdate <= 50) {
     console.log("Failed, needed captcha");
     await browser.close();
     tryUpdate++;
     run();
   } else {
     console.log("Update failed");
+    await browser.close();
   }
 };
 
