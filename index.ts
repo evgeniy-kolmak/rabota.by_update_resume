@@ -7,8 +7,7 @@ const targetUrl = "https://rabota.by/applicant/resumes";
 const login = process.env.LOGIN;
 const password = process.env.PASSWORD;
 
-const LINK_EXPEND_AUTH_FORM_SELECTOR = '[data-qa="expand-login-by-password"]';
-const AUTH_FORM_SELECTOR = '[data-qa="account-login-form"]';
+const LINK_EXPAND_AUTH_FORM_SELECTOR = '[data-qa="expand-login-by-password"]';
 const AUTH_FORM_USERNAME_SELECTOR = '[data-qa="login-input-username"]';
 const AUTH_FORM_PASSWORD_SELECTOR = '[data-qa="login-input-password"]';
 const AUTH_FORM_BUTTON_SUBMIT_SELECTOR = '[data-qa="account-login-submit"]';
@@ -29,7 +28,7 @@ const run = async () => {
   await page.waitForTimeout(1000);
 
   console.info("Expend form");
-  await page.locator(LINK_EXPEND_AUTH_FORM_SELECTOR).click();
+  await page.locator(LINK_EXPAND_AUTH_FORM_SELECTOR).click();
 
   console.info("Start filling form");
   await page.locator(AUTH_FORM_USERNAME_SELECTOR).first().fill(login);
