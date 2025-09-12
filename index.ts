@@ -11,55 +11,26 @@ const LINK_EXPAND_AUTH_FORM_SELECTOR = '[data-qa="expand-login-by-password"]';
 const AUTH_FORM_USERNAME_SELECTOR = '[data-qa="login-input-username"]';
 const AUTH_FORM_PASSWORD_SELECTOR = '[data-qa="login-input-password"]';
 const AUTH_FORM_BUTTON_SUBMIT_SELECTOR = '[data-qa="account-login-submit"]';
-const UPDATE_RESUME_BUTTON_SELECTOR =
-  '[data-qa="resume-update-button_actions"]';
 
-const buttonText = "Поднять в поиске";
-
-let tryUpdate = 0;
-
-const run = async () => {
+void (async () => {
   const browser = await chromium.launch();
   const context = await browser.newContext();
   const page: Page = await context.newPage();
 
-  console.log(`Start task | Try: ${tryUpdate}`);
   await page.goto(targetUrl);
   await page.waitForTimeout(1000);
 
-  console.info("Expend form");
   await page.locator(LINK_EXPAND_AUTH_FORM_SELECTOR).click();
 
-  console.info("Start filling form");
   await page.locator(AUTH_FORM_USERNAME_SELECTOR).first().fill(login);
   await page.fill(AUTH_FORM_PASSWORD_SELECTOR, password);
   await page.locator(AUTH_FORM_BUTTON_SUBMIT_SELECTOR).click();
   await page.waitForTimeout(2500);
 
-  const isVisibleUpdateButton = await page.isVisible(
-    UPDATE_RESUME_BUTTON_SELECTOR
-  );
-  const updateButton = page.locator(UPDATE_RESUME_BUTTON_SELECTOR).first();
+  const button = page.getByRole("button", { name: "Поднять в поиске" });
 
-  if (isVisibleUpdateButton) {
-    console.log("Trying to update resume");
-    if ((await updateButton.textContent()) === buttonText) {
-      await updateButton.click();
-      console.log("Successfully");
-      await browser.close();
-    } else {
-      console.log("Not ready");
-      await browser.close();
-    }
-  } else if (tryUpdate <= 50) {
-    console.log("Failed, needed captcha");
-    await browser.close();
-    tryUpdate++;
-    run();
-  } else {
-    console.log("Update failed");
-    await browser.close();
-  }
-};
+  if ((await button.isVisible()) && (await button.isEnabled()))
+    await button.click();
 
-run();
+  await browser.close();
+})();
